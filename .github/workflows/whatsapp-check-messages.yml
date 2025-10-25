@@ -49,6 +49,12 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install chromium
 
+      - name: Load cahed user data
+        uses: actions/cache@v4
+        with:
+          path: user-data/whatsapp
+          key: user-data-whatsapp
+
       - name: Run check
         run: |
           export WHATSAPP_TOPIC="${{ secrets.WHATSAPP_TOPIC }}"
