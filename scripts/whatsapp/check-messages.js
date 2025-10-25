@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { firefox } from 'playwright';
 import 'dotenv/config';
 
 async function readChat(page, chat) {
@@ -18,7 +18,7 @@ async function readChat(page, chat) {
 }
 
 async function main() {
-  const browser = await chromium.launchPersistentContext( 'user-data/whatsapp', { headless: process.env.HEADLESS !== 'false' });
+  const browser = await firefox.launchPersistentContext( 'user-data/whatsapp', { headless: process.env.HEADLESS !== 'false' });
   const page = await browser.newPage();
 
   await page.goto('https://web.whatsapp.com');
