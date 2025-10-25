@@ -26,11 +26,15 @@ async function main() {
   await page.waitForTimeout(500);
 
   const allUnreadChats = page.getByRole('row');
+  console.log("Chats with unread messages: " + await allUnreadChats.count());
   for (const chat of await allUnreadChats.all()) {
 
     const chatMuted = await chat.locator('span').filter({ hasText: /^mute-notifications-refreshed$/ }).isVisible();
     if (!chatMuted) {
+      console.log('Reading messages...');
       await readChat(page, chat);
+    } else {
+      console.log('Chat muted, skipping...');
     }
   }
 
