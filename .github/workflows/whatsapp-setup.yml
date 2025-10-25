@@ -1,0 +1,28 @@
+name: WhatsApp Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      USER_DATA_URL:
+        description: 'URL of user data zip file.'
+        required: true
+        type: string
+
+jobs:
+  setup:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Cache user data
+        uses: actions/cache@v4
+        with:
+          path: ~/user-data/whatsapp
+          key: user-data-whatsapp
+
+      - name: Download and unzip user data
+        run: |
+          wget -O data.zip ${{ inputs.USER_DATA_URL }}
+          unzip data.zip -d .
+          rm data.zip
