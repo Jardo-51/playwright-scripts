@@ -18,7 +18,7 @@ jobs:
       - name: Cache user data
         uses: actions/cache@v4
         with:
-          path: ~/user-data/whatsapp
+          path: user-data/whatsapp
           key: user-data-whatsapp
 
       - name: Download and unzip user data
