@@ -4,6 +4,8 @@ name: WhatsApp Check Messages
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "10 5-20 * * *"
 
 jobs:
   build:
