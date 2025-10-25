@@ -7,7 +7,7 @@ async function readChat(page, chat) {
 
   const title = await page.locator('#main').locator('header').locator('span').first().innerText();
 
-  const unreadMessages = page.locator('xpath=//*[@id="main"]//div[.//span[text()="Today"]]/following::div[@role="row"]');
+  const unreadMessages = page.locator('xpath=//*[@id="main"]//div[.//span[contains(text(), "unread")]]/following::div[@role="row"]');
   for (const message of await unreadMessages.all()) {
     const text = await message.locator('span').nth(4).innerText();
     await fetch('https://ntfy.sh/' + process.env.WHATSAPP_TOPIC, {
