@@ -1,12 +1,9 @@
 name: WhatsApp Setup
 
+# TODO: consider using Nix: https://www.reddit.com/r/NixOS/comments/1eyenzf/comment/ljdtfa3/
+
 on:
   workflow_dispatch:
-    inputs:
-      USER_DATA_URL:
-        description: 'URL of user data zip file.'
-        required: true
-        type: string
 
 jobs:
   setup:
@@ -15,14 +12,50 @@ jobs:
 
     steps:
 
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: npm install -g pnpm && pnpm install --frozen-lockfile
+
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(pnpm list @playwright/test --depth=0 | grep @playwright/test | awk '{print $2}')" >> $GITHUB_ENV
+
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Install Playwright Dependencies
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium
+
       - name: Cache user data
         uses: actions/cache@v4
         with:
           path: user-data/whatsapp
           key: user-data-whatsapp
 
-      - name: Download and unzip user data
+      - name: Run check
         run: |
-          wget -O data.zip ${{ inputs.USER_DATA_URL }}
-          unzip data.zip -d .
-          rm data.zip
+          export WHATSAPP_TOPIC="${{ secrets.WHATSAPP_TOPIC }}"
+          pnpm exec node scripts/whatsapp/login.js
