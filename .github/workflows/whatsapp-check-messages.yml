@@ -58,4 +58,5 @@ jobs:
       - name: Run check
         run: |
           export WHATSAPP_TOPIC="${{ secrets.WHATSAPP_TOPIC }}"
-          pnpm exec node scripts/whatsapp/check-messages.js
+          ls -la ./user-data/whatsapp | true
+          #pnpm exec node scripts/whatsapp/check-messages.js
