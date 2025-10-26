@@ -1,0 +1,9 @@
+services:
+
+  playwright-whatsapp:
+    image: playwright-whatsapp:latest
+    restart: always
+    environment:
+      - CRON_SCHEDULE
+    volumes:
+      - /opt/docker-volumes/playwright-whatsapp/user-data/whatsapp:/app/user-data/whatsapp
