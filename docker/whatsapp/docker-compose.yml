@@ -1,9 +1,10 @@
 services:
 
-  playwright-whatsapp:
-    image: playwright-whatsapp:latest
+  pw:
+    image: ghcr.io/jardo-51/playwright-whatsapp:latest
     restart: always
     environment:
       - CRON_SCHEDULE
+      - WHATSAPP_TOPIC
     volumes:
       - /opt/docker-volumes/playwright-whatsapp/user-data/whatsapp:/app/user-data/whatsapp
