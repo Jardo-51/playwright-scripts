@@ -1,5 +1,21 @@
 import { firefox } from 'playwright';
 import 'dotenv/config';
+import fs from 'fs';
+
+async function login(page) {
+  console.log('Waiting for QR code to load...')
+  await page.waitForTimeout(15_000);
+  await page.screenshot({ path: 'login-code.png' });
+
+  await fetch('https://ntfy.sh/' + process.env.WHATSAPP_TOPIC, {
+    method: 'PUT',
+    body: fs.createReadStream('login-code.png'),
+    duplex: 'half',
+  });
+
+  console.log('Login QR code sent to topic. You have 2 minutes to login...');
+  await page.waitForTimeout(120_000);
+}
 
 async function readChat(page, chat) {
   await chat.click();
@@ -22,6 +38,25 @@ async function main() {
   const page = await browser.newPage();
 
   await page.goto('https://web.whatsapp.com');
+
+  // wait for page load, potentially trigger login
+  const maxDuration = 30_000;
+  const start = Date.now();
+  while (Date.now() - start < maxDuration) {
+
+    await page.waitForTimeout(5_000);
+
+    if (await page.getByRole('tab', { name: 'Unread' }).isVisible()) {
+      break;
+    }
+
+    if (await page.getByText('Steps to log in').isVisible()) {
+      console.log('Executing login');
+      await login(page);
+      break;
+    }
+  }
+
   await page.getByRole('tab', { name: 'Unread' }).click();
   await page.waitForTimeout(500);
 
