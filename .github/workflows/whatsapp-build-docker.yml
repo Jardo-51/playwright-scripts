@@ -1,0 +1,32 @@
+
+name: WhatsApp Build Docker
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push image
+      run: |
+        lowercaseActor=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
+        tag="ghcr.io/${lowercaseActor}/playwright-whatsapp:latest"
+        docker build -f docker/whatsapp/Dockerfile -t ${tag} .
+        docker push ${tag}
