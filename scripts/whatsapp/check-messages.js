@@ -2,12 +2,19 @@ import { firefox } from 'playwright';
 import 'dotenv/config';
 import fs from 'fs';
 
+async function sendToTopic(payload) {
+  const response = await fetch('https://ntfy.sh/' + process.env.WHATSAPP_TOPIC, payload);
+  if (!response.ok) {
+    console.error(`Sending to ntfy fauled: ${response.status} ${response.statusText}`);
+  }
+}
+
 async function login(page) {
   console.log('Waiting for QR code to load...')
   await page.waitForTimeout(15_000);
   await page.screenshot({ path: 'login-code.png' });
 
-  await fetch('https://ntfy.sh/' + process.env.WHATSAPP_TOPIC, {
+  await sendToTopic({
     method: 'PUT',
     body: fs.createReadStream('login-code.png'),
     duplex: 'half',
@@ -26,7 +33,7 @@ async function readChat(page, chat) {
   const unreadMessages = page.locator('xpath=//*[@id="main"]//div[.//span[contains(text(), "unread")]]/following::div[@role="row"]');
   for (const message of await unreadMessages.all()) {
     const text = await message.locator('span').nth(4).innerText();
-    await fetch('https://ntfy.sh/' + process.env.WHATSAPP_TOPIC, {
+    await sendToTopic({
       method: 'POST',
       body: title + ': ' + text,
     })
@@ -34,6 +41,7 @@ async function readChat(page, chat) {
 }
 
 async function main() {
+
   const browser = await firefox.launchPersistentContext( 'user-data/whatsapp', { headless: process.env.HEADLESS !== 'false' });
   const page = await browser.newPage();
 
