@@ -6,6 +6,9 @@ CRON_SCHEDULE="${CRON_SCHEDULE:-10 5-20 * * *}"
 
 echo "Starting with cron schedule: ${CRON_SCHEDULE}"
 
+ENV_FILE="/opt/scripts/.env"
+echo "WHATSAPP_TOPIC=${WHATSAPP_TOPIC}" >> ${ENV_FILE}
+
 # Write the cron job to a file
 # The cron job calls our playwright.sh script.
 CRON_FILE="/etc/cron.d/playwright"
