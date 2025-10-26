@@ -72,7 +72,7 @@ async function main() {
   console.log("Chats with unread messages: " + await allUnreadChats.count());
   for (const chat of await allUnreadChats.all()) {
 
-    const chatMuted = await chat.locator('span').filter({ hasText: /^mute-notifications-refreshed$/ }).isVisible();
+    const chatMuted = await chat.locator('span').filter({ hasText: /^mute-notifications-refreshed$/ }).first().isVisible();
     if (!chatMuted) {
       console.log('Reading messages...');
       await readChat(page, chat);
